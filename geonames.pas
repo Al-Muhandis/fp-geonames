@@ -28,6 +28,7 @@ type
     function GetJSONResponse: TJSONObject;
     procedure InfoMessage(const Msg: String);
     function SendAPIMethod(const AMethod: String): Boolean;
+    procedure SetGeoNameID(AValue: Cardinal);
     procedure SetLatitude(AValue: Double);
     procedure SetLongitude(AValue: Double);
     procedure SetRequestBody(AValue: String);
@@ -38,15 +39,17 @@ type
     destructor Destroy; override;
     function findNearby(ALatitude, ALongitude: Double): Boolean;
     function findNearbyPlaceName(ALatitude, ALongitude: Double): Boolean;
+    function get(AGeoNameID: Cardinal): Boolean;
     function timezone(ALatitude, ALongitude: Double): Boolean;
+    property GeoNameID: Cardinal write SetGeoNameID;
+    property JSONResponse: TJSONObject read GetJSONResponse;
     property Latitude: Double write SetLatitude;
     property Longitude: Double write SetLongitude;
     property OnLogMessage: TLogMessageEvent read FOnLogMessage write FOnLogMessage;
     property RequestBody: String read FRequestBody write SetRequestBody;
     property Response: String read FResponse;
-    property UserName: String read FUserName write SetUserName;
-    property JSONResponse: TJSONObject read GetJSONResponse;
     property Style: TVerbosityStyle write SetStyle;
+    property UserName: String read FUserName write SetUserName;
   published
 
   end;
@@ -123,6 +126,11 @@ begin
   end;
 end;
 
+procedure TGeoNamesParser.SetGeoNameID(AValue: Cardinal);
+begin
+  FGetParams.Values['geonameId']:=IntToStr(AValue);
+end;
+
 procedure TGeoNamesParser.SetLatitude(AValue: Double);
 begin
   FGetParams.Values['lat']:=FloatToStr(AValue, FFormatSettings);
@@ -169,6 +177,7 @@ begin
   inherited Destroy;
 end;
 
+// example http://api.geonames.org/findNearbyJSON?formatted=true&lat=48.865618158309374&lng=2.344207763671875&fclass=P&fcode=PPLA&fcode=PPL&fcode=PPLC&username=demo&style=full
 function TGeoNamesParser.findNearby(ALatitude, ALongitude: Double): Boolean;
 begin
   Latitude:=ALatitude;
@@ -176,6 +185,7 @@ begin
   Result:=SendAPIMethod('findNearby');
 end;
 
+// example http://api.geonames.org/findNearbyPlaceNameJSON?formatted=true&lat=47.3&lng=9&username=demo&style=full
 function TGeoNamesParser.findNearbyPlaceName(ALatitude, ALongitude: Double
   ): Boolean;
 begin
@@ -184,6 +194,14 @@ begin
   Result:=SendAPIMethod('findNearbyPlaceName');
 end;
 
+// http://api.geonames.org/getJSON?formatted=true&geonameId=6295630&username=demo&style=full
+function TGeoNamesParser.get(AGeoNameID: Cardinal): Boolean;
+begin
+  GeoNameID:=AGeoNameID;
+  Result:=SendAPIMethod('get');
+end;
+
+// http://api.geonames.org/timezoneJSON?formatted=true&lat=47.01&lng=10.2&username=demo&style=full
 function TGeoNamesParser.timezone(ALatitude, ALongitude: Double): Boolean;
 begin
   Latitude:=ALatitude;
