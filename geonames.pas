@@ -86,7 +86,7 @@ begin
   begin
     if FResponse<>EmptyStr then
     begin
-      lParser := TJSONParser.Create(FResponse);
+      lParser := TJSONParser.Create(FResponse, DefaultOptions);
       try
         try
           FJSONResponse := lParser.Parse as TJSONObject;
